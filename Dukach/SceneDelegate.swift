@@ -1,21 +1,50 @@
-//
-//  SceneDelegate.swift
-//  Dukach
-//
-//  Created by Illia Marchenko on 22.05.2023.
-//
-
 import UIKit
+import Firebase
 
 class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
     var window: UIWindow?
+    var authStateListener: AuthStateDidChangeListenerHandle?
+
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-        // Use this method to optionally configure and attach the UIWindow `window` to the provided UIWindowScene `scene`.
-        // If using a storyboard, the `window` property will automatically be initialized and attached to the scene.
-        // This delegate does not imply the connecting scene or session are new (see `application:configurationForConnectingSceneSession` instead).
+          
+        
+//        authStateListener = Auth.auth().addStateDidChangeListener { (auth, user) in
+//            if user != nil {
+//                // Користувач авторизований, встановлюємо головний контролер додатка
+//                let mainViewController = ViewController()
+//                self.window?.rootViewController = mainViewController
+//            } else {
+//                // Користувач не авторизований, встановлюємо контролер авторизації
+//                let authViewController = AuthViewController()
+//                authViewController.delegate = self
+//                self.window?.rootViewController = authViewController
+//            }
+//
+//            self.window?.makeKeyAndVisible()
+//        }
+//
+      
+     
+//
+        
+        
+        Auth.auth().addStateDidChangeListener { (auth, user) in
+            print ("try ")
+            if user == nil{
+
+//                self.showModalAuth()
+                self.showAuth()
+
+            }else{
+               print ("OnLine")
+
+            }
+        }
+        
+        
         guard let _ = (scene as? UIWindowScene) else { return }
     }
 
@@ -24,6 +53,9 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // This occurs shortly after the scene enters the background, or when its session is discarded.
         // Release any resources associated with this scene that can be re-created the next time the scene connects.
         // The scene may re-connect later, as its session was not necessarily discarded (see `application:didDiscardSceneSessions` instead).
+        Auth.auth().removeStateDidChangeListener(authStateListener!)
+
+        
     }
 
     func sceneDidBecomeActive(_ scene: UIScene) {
@@ -47,6 +79,37 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
+//    func showModalAuth(){
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//        if let authViewController = storyboard.instantiateViewController(withIdentifier: String(describing: AuthViewController.self)) as? AuthViewController {
+//            self.window?.rootViewController?.present(authViewController, animated: true)
+//
+//        }
+//
+//            }
+    func showAuth(){
+        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+        if let authViewController = storyboard.instantiateViewController(withIdentifier: String(describing: AuthViewController.self)) as? AuthViewController {
+            
+//            self.window?.rootViewController?.present(authViewController, animated: true)
+            window?.rootViewController = authViewController
+            window?.makeKeyAndVisible()
+        }
+
+        
+    }
 
 }
 
+extension SceneDelegate: AuthDelegate {
+    func userDidAuthenticate() {
+        let mainViewController = ViewController()
+        window?.rootViewController = mainViewController
+    }
+
+    func userDidSignOut() {
+        let authViewController = AuthViewController()
+        authViewController.delegate = self
+        window?.rootViewController = authViewController
+    }
+}
