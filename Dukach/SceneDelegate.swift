@@ -9,35 +9,11 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
 
 
     func scene(_ scene: UIScene, willConnectTo session: UISceneSession, options connectionOptions: UIScene.ConnectionOptions) {
-          
-        
-//        authStateListener = Auth.auth().addStateDidChangeListener { (auth, user) in
-//            if user != nil {
-//                // Користувач авторизований, встановлюємо головний контролер додатка
-//                let mainViewController = ViewController()
-//                self.window?.rootViewController = mainViewController
-//            } else {
-//                // Користувач не авторизований, встановлюємо контролер авторизації
-//                let authViewController = AuthViewController()
-//                authViewController.delegate = self
-//                self.window?.rootViewController = authViewController
-//            }
-//
-//            self.window?.makeKeyAndVisible()
-//        }
-//
-      
-     
-//
-        
-        
+ 
         Auth.auth().addStateDidChangeListener { (auth, user) in
             print ("try ")
             if user == nil{
-
-//                self.showModalAuth()
-                self.showAuth()
-
+                self.showModalAuth()
             }else{
                print ("OnLine")
 
@@ -79,25 +55,25 @@ class SceneDelegate: UIResponder, UIWindowSceneDelegate {
         // to restore the scene back to its current state.
     }
 
-//    func showModalAuth(){
-//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
-//        if let authViewController = storyboard.instantiateViewController(withIdentifier: String(describing: AuthViewController.self)) as? AuthViewController {
-//            self.window?.rootViewController?.present(authViewController, animated: true)
-//
-//        }
-//
-//            }
-    func showAuth(){
+    func showModalAuth(){
         let storyboard = UIStoryboard(name: "Main", bundle: nil)
         if let authViewController = storyboard.instantiateViewController(withIdentifier: String(describing: AuthViewController.self)) as? AuthViewController {
-            
-//            self.window?.rootViewController?.present(authViewController, animated: true)
-            window?.rootViewController = authViewController
-            window?.makeKeyAndVisible()
+            self.window?.rootViewController?.present(authViewController, animated: true)
+
         }
 
-        
-    }
+            }
+    
+//    func showAuth(){
+//        let storyboard = UIStoryboard(name: "Main", bundle: nil)
+//        if let authViewController = storyboard.instantiateViewController(withIdentifier: String(describing: AuthViewController.self)) as? AuthViewController {
+//
+////            self.window?.rootViewController?.present(authViewController, animated: true)
+//            window?.rootViewController = authViewController
+//            window?.makeKeyAndVisible()
+//        }
+//
+//    }
 
 }
 
