@@ -6,25 +6,21 @@ import Firebase
 
 class AuthViewController: UIViewController {
     
-    
 
     @IBOutlet weak var authStackView: UIStackView!
     @IBOutlet weak var authTitleLabel: UILabel!
     
     @IBOutlet weak var authNameLabel: UILabel!
-    
     @IBOutlet weak var authMailLabel: UILabel!
-    
     @IBOutlet weak var authPassLabel: UILabel!
-    
     @IBOutlet weak var authTermsConditionLabel: UILabel!
     
     
     @IBOutlet weak var authNameTextField: UITextField!
-    
     @IBOutlet weak var authEmailTextField: UITextField!
-    
     @IBOutlet weak var authPassTextField: UITextField!
+    
+    @IBOutlet weak var authButton: UIButton!
 
     private let scrollView: UIScrollView = {
         let scrollView = UIScrollView()
@@ -33,17 +29,62 @@ class AuthViewController: UIViewController {
         scrollView.layer.borderColor = UIColor.red.cgColor
         return scrollView
     }()
+
     
     weak var delegate: AuthDelegate?
-
+//    var authSwitcher : Const.authSwitcher = .registration
+    var authSwitcher : Const.authSwitcher = .login
     
     override func viewDidLoad() {
         super.viewDidLoad()
-
+        
         setupInterface()
         
 
     }
+    
+    @IBAction func authButton(_ sender: Any) {
+        print("click")
+
+        guard let email = authEmailTextField.text, let password = authPassTextField.text, !email.isEmpty, !password.isEmpty else {
+            present(alertUserAuthError(authError:Const.userAuthErrorMessage.emptyField.rawValue), animated: true)
+            return
+        }
+        authEnterButtonPresed(authType: authSwitcher)
+        
+        authenticateUser()
+
+        
+        
+        func authEnterButtonPresed(authType:Const.authSwitcher){ //перейменувати і зробити у VM
+            if authType == .registration{
+                registerUser(name: authNameTextField.text ?? Const.unownName, email: email, password: password)
+
+            }else{
+                signInUser(email: email, password: password)
+            }
+        }
+        
+        
+    }
+//    @IBAction func authButton(_ sender: UIButton) {
+//           guard let email = authEmailTextField.text, let password = authPassTextField.text, !email.isEmpty, !password.isEmpty else {
+//               present(alertUserAuthError(authError: Const.userAuthErrorMessage.emptyField.rawValue), animated: true)
+//               return
+//           }
+//        print("click2")
+//           authEnterButtonPresed(authType: authSwitcher)
+           
+           
+
+//           func authEnterButtonPresed(authType:Const.authSwitcher){ //перейменувати і зробити у VM
+//               if authType == .registration{
+//                   registerUser(name: nameField.text ?? Const.unownName, email: email, password: password)
+//               }else{
+//                   signInUser(email: email, password: password)
+//               }
+//           }
+//       }
 
 
 // MARK: - Navigation
@@ -51,7 +92,9 @@ class AuthViewController: UIViewController {
     private func authenticateUser() {
          // Логіка авторизації
          // При успішній авторизації викликаємо метод делегата
-         delegate?.userDidAuthenticate()
+        print ("main VC")
+        self.delegate?.userDidAuthenticate()
+//         delegate?.userDidAuthenticate()
      }
 
      private func signOutUser() {
@@ -71,12 +114,13 @@ protocol AuthDelegate: AnyObject {
 
 // MARK: - setupInterface AuthViewController
 extension AuthViewController{
-    
+
     func setupInterface() {
         setupScrollView()
         setupAuthStackView()
         setupLabels()
         setupTextFields()
+        setupAuthButton()
         addSubviews()
         setupConstraints()
     }
@@ -103,6 +147,7 @@ extension AuthViewController{
         setupTextField(authNameTextField, placeholder: "Your Name")
         setupTextField(authEmailTextField, placeholder: "Your Email")
         setupTextField(authPassTextField, placeholder: "********", isSecureTextEntry: true)
+        
     }
 
     private func setupTextField(_ textField: UITextField, placeholder: String, isSecureTextEntry: Bool = false) {
@@ -115,6 +160,14 @@ extension AuthViewController{
         textField.placeholder = placeholder
         textField.isSecureTextEntry = isSecureTextEntry
     }
+    
+    private func setupAuthButton() {
+//        authButton = UIButton(type: .system)
+        authButton.setTitle("Зареєструватися", for: .normal)
+        authButton.addTarget(self, action: #selector(getter: authButton), for: .touchUpInside)
+        authButton.layer.cornerRadius = 20
+        
+    }
 
     private func addSubviews() {
         authStackView.addArrangedSubview(authNameLabel)
@@ -123,7 +176,7 @@ extension AuthViewController{
         authStackView.addArrangedSubview(authEmailTextField)
         authStackView.addArrangedSubview(authPassLabel)
         authStackView.addArrangedSubview(authPassTextField)
-       
+        authStackView.addArrangedSubview(authButton)
         
         scrollView.addSubview(authStackView)
         view.addSubview(scrollView)
@@ -155,8 +208,36 @@ extension AuthViewController{
             authNameLabel.leadingAnchor.constraint(equalTo: authStackView.leadingAnchor),
             authNameLabel.trailingAnchor.constraint(equalTo: authStackView.trailingAnchor),
             authMailLabel.leadingAnchor.constraint(equalTo: authStackView.leadingAnchor),
-            authMailLabel.trailingAnchor.constraint(equalTo: authStackView.trailingAnchor)
+            authMailLabel.trailingAnchor.constraint(equalTo: authStackView.trailingAnchor),
+//
+//            authButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
+//            authButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
+            authButton.widthAnchor.constraint(equalToConstant: 100),
+            authButton.heightAnchor.constraint(equalToConstant: 40)
 
         ])
     }
+}
+
+
+extension AuthViewController: UITextFieldDelegate{
+    func textFieldShouldReturn(_ textField: UITextField) -> Bool {
+        if textField == authEmailTextField {
+            authPassTextField.becomeFirstResponder()
+        }else if
+            textField == authPassTextField{
+//            authButton
+        }
+        return true
+    }
+    
+    func alertUserAuthError(authError:String) -> UIAlertController {
+        print("error")
+        let alert = UIAlertController(title: "Message", message: authError, preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+        return alert
+    }
+    
+    
+    
 }

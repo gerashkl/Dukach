@@ -6,6 +6,7 @@
 //
 
 import UIKit
+import Firebase
 
 class ViewController: UIViewController  {
     
@@ -20,6 +21,13 @@ class ViewController: UIViewController  {
 //        super.viewDidAppear(animated)
 //    
 //    }
-
+    @IBAction func logOutButton(_ sender: Any) {
+        do{
+            try Auth.auth().signOut()
+        } catch{
+            print(error)
+        }
+    }
+    
 }
 
