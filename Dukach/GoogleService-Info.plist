@@ -30,10 +30,7 @@
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
 	<string>1:385308479305:ios:0857d5387363d117d1d498</string>
-<<<<<<< Updated upstream
 	<key>DATABASE_URL</key>
 	<string>https://dukach-f0f86-default-rtdb.europe-west1.firebasedatabase.app</string>
-=======
->>>>>>> Stashed changes
 </dict>
 </plist>

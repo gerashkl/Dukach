@@ -1,5 +1,3 @@
-
-
 import UIKit
 import Firebase
 
@@ -31,9 +29,11 @@ class AuthViewController: UIViewController {
     }()
 
     
+    
+    let viewModel = AuthViewControllerViewModel()
     weak var delegate: AuthDelegate?
 //    var authSwitcher : Const.authSwitcher = .registration
-    var authSwitcher : Const.authSwitcher = .login
+    var authSwitcher : Const.authSwitcher = .login   
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -41,13 +41,40 @@ class AuthViewController: UIViewController {
         setupInterface()
         
 
+        viewModel.onError = { [weak self] error in
+                    DispatchQueue.main.async {
+                        // Створюємо і відображаємо алерт з помилкою
+                        let alertController = UIAlertController(title: "Помилка", message: error.localizedDescription, preferredStyle: .alert)
+                        alertController.addAction(UIAlertAction(title: "OK", style: .default, handler: nil))
+                        self?.present(alertController, animated: true, completion: nil)
+                    }
+                }
+        
+        viewModel.onRegistrationSuccess = { [weak self] in
+                    DispatchQueue.main.async {
+                        self?.dismiss(animated: true, completion: nil)
+                    }
+            print("onRegistrationSuccess Online")
+
+                }
+        viewModel.onSignInSuccess = { [weak self] in
+                    DispatchQueue.main.async {
+                        self?.dismiss(animated: true, completion: nil)
+                    }
+            print("onSignInSuccess Online")
+                }
+        
+       
+
     }
+    
+   
     
     @IBAction func authButton(_ sender: Any) {
         print("click")
 
         guard let email = authEmailTextField.text, let password = authPassTextField.text, !email.isEmpty, !password.isEmpty else {
-            present(alertUserAuthError(authError:Const.userAuthErrorMessage.emptyField.rawValue), animated: true)
+            present(viewModel.alertUserAuthError(authError:Const.userAuthErrorMessage.emptyField.rawValue), animated: true)
             return
         }
         authEnterButtonPresed(authType: authSwitcher)
@@ -58,33 +85,18 @@ class AuthViewController: UIViewController {
         
         func authEnterButtonPresed(authType:Const.authSwitcher){ //перейменувати і зробити у VM
             if authType == .registration{
-                registerUser(name: authNameTextField.text ?? Const.unownName, email: email, password: password)
+                
+//                тут перемикаюсь муж реєстрацією у ВМ і ексеншином вью
+                viewModel.registerUser(name: authNameTextField.text ?? Const.unownName, email: email, password: password)
+//                registerUser(name: authNameTextField.text ?? Const.unownName, email: email, password: password)
 
             }else{
-                signInUser(email: email, password: password)
+                viewModel.signInUser(email: email, password: password)
             }
         }
         
         
     }
-//    @IBAction func authButton(_ sender: UIButton) {
-//           guard let email = authEmailTextField.text, let password = authPassTextField.text, !email.isEmpty, !password.isEmpty else {
-//               present(alertUserAuthError(authError: Const.userAuthErrorMessage.emptyField.rawValue), animated: true)
-//               return
-//           }
-//        print("click2")
-//           authEnterButtonPresed(authType: authSwitcher)
-           
-           
-
-//           func authEnterButtonPresed(authType:Const.authSwitcher){ //перейменувати і зробити у VM
-//               if authType == .registration{
-//                   registerUser(name: nameField.text ?? Const.unownName, email: email, password: password)
-//               }else{
-//                   signInUser(email: email, password: password)
-//               }
-//           }
-//       }
 
 
 // MARK: - Navigation
@@ -116,7 +128,7 @@ protocol AuthDelegate: AnyObject {
 extension AuthViewController{
 
     func setupInterface() {
-        setupScrollView()
+//        setupScrollView()
         setupAuthStackView()
         setupLabels()
         setupTextFields()
@@ -138,6 +150,7 @@ extension AuthViewController{
     }
 
     private func setupLabels() {
+        authTitleLabel.text = "reg or log"
         authNameLabel.text = "Ім'я користувача:"
         authMailLabel.text = "Email:"
         authPassLabel.text = "Пароль:"
@@ -178,41 +191,51 @@ extension AuthViewController{
         authStackView.addArrangedSubview(authPassTextField)
         authStackView.addArrangedSubview(authButton)
         
-        scrollView.addSubview(authStackView)
-        view.addSubview(scrollView)
+//        scrollView.addSubview(authStackView)
+//        view.addSubview(scrollView)
     }
 
     private func setupConstraints() {
         scrollView.translatesAutoresizingMaskIntoConstraints = false
         authStackView.translatesAutoresizingMaskIntoConstraints = false
+        authTitleLabel.translatesAutoresizingMaskIntoConstraints = false
         authNameTextField.translatesAutoresizingMaskIntoConstraints = false
         authEmailTextField.translatesAutoresizingMaskIntoConstraints = false
         authPassTextField.translatesAutoresizingMaskIntoConstraints = false
+
         
         NSLayoutConstraint.activate([
-            scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 180),
-            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
-            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
-            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+//            scrollView.topAnchor.constraint(equalTo: view.topAnchor, constant: 180),
+//            scrollView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+//            scrollView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+//            scrollView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+            authTitleLabel.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 80),
             
-            authStackView.topAnchor.constraint(equalTo: scrollView.topAnchor),
-            authStackView.leadingAnchor.constraint(equalTo: scrollView.leadingAnchor),
-            authStackView.trailingAnchor.constraint(equalTo: scrollView.trailingAnchor),
-            authStackView.bottomAnchor.constraint(equalTo: scrollView.bottomAnchor),
-            authStackView.widthAnchor.constraint(equalTo: scrollView.widthAnchor),
+            authStackView.topAnchor.constraint(equalTo: view.topAnchor, constant: 180),
+            authStackView.leadingAnchor.constraint(equalTo: view.leadingAnchor, constant: 24),
+            authStackView.trailingAnchor.constraint(equalTo: view.trailingAnchor, constant: -24),
+            authStackView.bottomAnchor.constraint(equalTo: view.bottomAnchor),
+//            authStackView.widthAnchor.constraint(equalTo: view.widthAnchor),
             
             authNameTextField.widthAnchor.constraint(equalTo: authStackView.widthAnchor, multiplier: 1.0),
             authEmailTextField.widthAnchor.constraint(equalTo: authStackView.widthAnchor, multiplier: 1.0),
             authPassTextField.widthAnchor.constraint(equalTo: authStackView.widthAnchor, multiplier: 1.0),
             
+            authNameTextField.heightAnchor.constraint(equalToConstant: 40),
+            authEmailTextField.heightAnchor.constraint(equalToConstant: 40),
+            authPassTextField.heightAnchor.constraint(equalToConstant: 40),
+            
             authNameLabel.leadingAnchor.constraint(equalTo: authStackView.leadingAnchor),
             authNameLabel.trailingAnchor.constraint(equalTo: authStackView.trailingAnchor),
             authMailLabel.leadingAnchor.constraint(equalTo: authStackView.leadingAnchor),
             authMailLabel.trailingAnchor.constraint(equalTo: authStackView.trailingAnchor),
-//
+            authPassLabel.leadingAnchor.constraint(equalTo: authStackView.leadingAnchor),
+            authTermsConditionLabel.leadingAnchor.constraint(equalTo: authStackView.leadingAnchor),
+            authTermsConditionLabel.widthAnchor.constraint(equalTo: authStackView.widthAnchor, multiplier: 1.0),
+            //
 //            authButton.centerXAnchor.constraint(equalTo: view.centerXAnchor),
 //            authButton.centerYAnchor.constraint(equalTo: view.centerYAnchor),
-            authButton.widthAnchor.constraint(equalToConstant: 100),
+            authButton.widthAnchor.constraint(equalTo: authStackView.widthAnchor, multiplier: 1.0),
             authButton.heightAnchor.constraint(equalToConstant: 40)
 
         ])
@@ -231,12 +254,15 @@ extension AuthViewController: UITextFieldDelegate{
         return true
     }
     
-    func alertUserAuthError(authError:String) -> UIAlertController {
-        print("error")
-        let alert = UIAlertController(title: "Message", message: authError, preferredStyle: .alert)
-        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
-        return alert
-    }
+//    func alertUserAuthError(authError:Error) -> UIAlertController {
+//        print("error")
+//        let alert = UIAlertController(title: "Message", message: authError.localizedDescription, preferredStyle: .alert)
+//        alert.addAction(UIAlertAction(title: "OK", style: .cancel))
+//        return alert
+//    }
+    
+    
+    
     
     
     
